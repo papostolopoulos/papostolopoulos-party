@@ -8,17 +8,39 @@ var express = require('express');
 var app = express();
 var port = process.env.PORT || 8000;
 
+var morgan = require("morgan");
+
 app.disable('x-powered-by');
+app.use(morgan("short"));
 
 app.get("/guests", function(req, res) {
+  fs.readFile(guestsPath, "utf8", function(err, guestsJSON) {
+    if (err) {
+      console.error(err.stack);
+      return res.sendStatus(500);
+    }
+    var guests = JSON.parse(guestsJSON);
+    res.send(guests);
+  });
+});
+
+app.get('guests/:id', function (req, res) {
+  console.log("inside");
   fs.readFile(guestsPath, "utf8", function (err, guestsJSON) {
     if (err) {
       console.error(err.stack);
       return res.sendStatus(500);
     }
-    
+    console.log(guests.length);
+    var id = Number.parseInt(req.params.id);
     var guests = JSON.parse(guestsJSON);
-    res.send(guests);
+
+    if (id < 0 || id >= guests.length || Number.isNaN(id)) {
+      return res.sendStatus(404);
+    }
+
+    res.set("Content-Type", "text/plain");
+    res.send(guests[id]);
   });
 });
 
@@ -27,51 +49,5 @@ app.use(function(req, res) {
 });
 
 app.listen(port, function() {
-  console.log('Listening on port', port);
+  console.log('Listening on port', port, "and for express party practice");
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-//
-// 'use strict';
-//
-// var fs = require('fs');
-// var path = require('path');
-// var guestsPath = path.join(__dirname, 'guests.json');
-//
-// var express = require('express');
-// var app = express();
-// var port = process.env.PORT || 8000;
-//
-// app.disable('x-powered-by');
-//
-// app.get('/guests', function(req, res) {
-//   fs.readFile(guestsPath, 'utf8', function(err, guestsJSON) {
-//     if (err) {
-//       console.error(err.stack);
-//       return res.sendStatus(500);
-//     }
-//
-//     var guests = JSON.parse(guestsJSON);
-//
-//     res.send(guests);
-//   });
-// });
-//
-// app.use(function(req, res) {
-//   res.sendStatus(404);
-// });
-//
-// app.listen(port, function() {
-//   console.log('Listening on port', port);
-// });
