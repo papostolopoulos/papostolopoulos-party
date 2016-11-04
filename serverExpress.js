@@ -40,7 +40,7 @@ app.get('/guests/:id', function(req, res) {
     var id = Number.parseInt(req.params.id);
     var guests = JSON.parse(newGuestsJSON);
 
-    if (id < 0 || id >= guests.length || Number.isNaN(id)) {
+    if (id < 0 || id >= guests.length || isNaN(Number(id))) {
       return res.sendStatus(404);
     }
 
@@ -89,7 +89,7 @@ app.put('/guests/:id', function(req, res) {
     var id = Number.parseInt(req.params.id);
     var guests = JSON.parse(guestsJSON);
 
-    if (id < 0 || id >= guests.length || Number.isNaN(id)) {
+    if (id < 0 || id >= guests.length || isNaN(Number(id))) {
       return res.sendStatus(404);
     }
 
@@ -110,6 +110,36 @@ app.put('/guests/:id', function(req, res) {
       }
 
       res.set('Content-Type', 'text/plain');
+      res.send(guest);
+    });
+  });
+});
+
+app.delete('/guests/:id', function (req, res) {
+  fs.readFile(guestsPath, 'utf8', function (readErr, guestsJSON) {
+    if (readErr) {
+      console.error(readErr.stack);
+      return res.sendStatus(500);
+    }
+
+    var id = Number.parseInt(req.params.id);
+    var guests = JSON.parse(guestsJSON);
+
+    if (id < 0 || id >= guests.length || isNaN(Number(id))) {
+      res.sendStatus(404);
+    }
+    console.log(guests[0]);
+    console.log(guests.splice(id, 1)[0]);
+    var guest = guests.splice(id, 1)[0];
+    var newGuestsJSON = JSON.stringify(guests);
+
+    fs.writeFile(guestsPath, newGuestsJSON, function (writeErr) {
+      if (writeErr) {
+        console.error(writeErr.stack);
+        return res.sendStatus(500)
+      }
+
+      res.set("Content-Type", "plain/text");
       res.send(guest);
     });
   });
@@ -166,7 +196,7 @@ app.listen(port, function() {
 //     var id = Number.parseInt(req.params.id);
 //     var guests = JSON.parse(guestsJSON);
 //
-//     if (id < 0 || id >= guests.length || Number.isNaN(id)) {
+//     if (id < 0 || id >= guests.length || isNaN(Number(id))) {
 //       return res.sendStatus(404);
 //     }
 //
